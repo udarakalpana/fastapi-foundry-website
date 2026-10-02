@@ -1,1 +1,141 @@
-@import "tailwindcss";I
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Brand colors sampled from the logo: blue #074fdc and teal #02a187. */
+  --color-brand-50: #eef4ff;
+  --color-brand-100: #dbe6fe;
+  --color-brand-200: #bfd3fe;
+  --color-brand-300: #93b4fd;
+  --color-brand-400: #5b8cf8;
+  --color-brand-500: #2f68ef;
+  --color-brand-600: #074fdc;
+  --color-brand-700: #0a40b3;
+  --color-brand-800: #0f378f;
+  --color-brand-900: #122f71;
+  --color-brand-950: #0d1d45;
+
+  --color-teal-400: #2dd4ae;
+  --color-teal-500: #0bb894;
+  --color-teal-600: #02a187;
+  --color-teal-700: #047e6b;
+
+  --animate-blink: blink 1s step-end infinite;
+  --animate-fade-up: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5.5rem;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    @apply bg-white font-sans text-slate-700 dark:bg-[#070b16] dark:text-slate-300;
+    font-feature-settings: 'ss01', 'cv11';
+  }
+
+  ::selection {
+    @apply bg-brand-600/20 dark:bg-brand-400/30;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand-500;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@utility text-gradient {
+  @apply bg-gradient-to-r from-brand-600 via-brand-500 to-teal-600 bg-clip-text text-transparent dark:from-brand-400 dark:via-brand-300 dark:to-teal-400;
+}
+
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+  --grid-line: rgb(15 23 42 / 0.05);
+  .dark & {
+    --grid-line: rgb(148 163 184 / 0.07);
+  }
+}
+
+/* Syntax highlighting. Code panels are always dark, so one palette serves both themes. */
+.tok-comment {
+  color: #6b7a99;
+  font-style: italic;
+}
+.tok-keyword {
+  color: #c792ea;
+}
+.tok-string {
+  color: #a5e075;
+}
+.tok-number {
+  color: #f78c6c;
+}
+.tok-function {
+  color: #82aaff;
+}
+.tok-class {
+  color: #ffcb6b;
+}
+.tok-builtin {
+  color: #4fd6be;
+}
+.tok-decorator {
+  color: #ffcb6b;
+}
+.tok-key {
+  color: #82aaff;
+}
+.tok-section {
+  color: #ffcb6b;
+  font-weight: 600;
+}
+.tok-command {
+  color: #4fd6be;
+}
+.tok-flag {
+  color: #c792ea;
+}
+.tok-heading {
+  color: #82aaff;
+  font-weight: 600;
+}
+.tok-prompt {
+  color: #4fd6be;
+  user-select: none;
+}

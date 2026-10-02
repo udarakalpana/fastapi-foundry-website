@@ -2,9 +2,37 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>fastapi_foundry_website</title>
+    <meta name="theme-color" content="#074fdc" />
+    <title>fastapi-foundry · Scaffold FastAPI projects in seconds</title>
+    <meta
+      name="description"
+      content="fastapi-foundry is an open-source CLI that scaffolds ready-to-run FastAPI projects with a clean app/ layout, environment-based configuration, a SQLAlchemy database connection and migration files."
+    />
+    <meta property="og:title" content="fastapi-foundry" />
+    <meta
+      property="og:description"
+      content="Scaffold ready-to-run FastAPI projects with one command: uvx fastapi-foundry init myproject"
+    />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      // Apply the saved or system theme before first paint to avoid a flash.
+      try {
+        const saved = localStorage.getItem('theme')
+        const dark =
+          saved === 'dark' || (saved !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.classList.toggle('dark', dark)
+      } catch {
+        /* storage unavailable: keep the light default */
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
