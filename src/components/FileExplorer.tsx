@@ -7,7 +7,7 @@ import CopyButton from './CopyButton'
 
 // What each generated file is for, from the fastapi-foundry README.
 const notes: Record<string, string> = {
-  'pyproject.toml': 'Dependencies: FastAPI, Uvicorn, SQLAlchemy and PyMySQL',
+  'pyproject.toml': 'Dependencies: FastAPI, Uvicorn, SQLAlchemy, PyMySQL and Alembic',
   '.env': 'Your local environment variables (git-ignored)',
   '.env.example': 'The same keys, committed for other developers',
   '.gitignore': 'Python, uv and tooling ignores',
@@ -17,7 +17,9 @@ const notes: Record<string, string> = {
   'app/config/database.py': 'DB_* settings and the DATABASE_URL built from them',
   'app/config/sqlalchemy_connection.py': 'SQLAlchemy engine, SessionLocal and get_db',
   'app/controller/home_controller.py': 'Handles the default route',
-  'app/database/20260922143022_create_users_table.py': 'Example migration every project ships with',
+  'app/database/20260922143022_create_users_table.py': 'The users migration every project ships with',
+  'app/database/schema.py': 'The Schema operations migrations change the database with',
+  'app/database/migrator.py': 'Applies and rolls back migrations; run by fastapi-foundry migrate',
 }
 
 type TreeNode = { name: string; path: string; children?: TreeNode[] }

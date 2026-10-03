@@ -17,6 +17,8 @@ const sections = [
   { id: 'project-names', label: 'Project names' },
   { id: 'commands', label: 'Command reference' },
   { id: 'migrations', label: 'Migrations' },
+  { id: 'writing-migrations', label: 'Writing migrations' },
+  { id: 'running-migrations', label: 'Running migrations' },
   { id: 'roadmap', label: 'Roadmap' },
   { id: 'contributing', label: 'Contributing' },
   { id: 'license', label: 'License' },
@@ -182,6 +184,44 @@ const MobileToc = ({ active }: { active: string }) => {
     </div>
   )
 }
+
+// The operations app/database/schema.py gives migrations.
+const schemaOperations = [
+  ['create_table(table, *columns)', 'Create a table from SQLAlchemy Column objects'],
+  ['drop_table(table)', 'Drop a table'],
+  ['rename_table(table, new_name)', 'Rename a table'],
+  ['add_column(table, column)', 'Add a Column to an existing table'],
+  ['drop_column(table, column)', 'Drop a column by name'],
+  [
+    'alter_column(table, column, **changes)',
+    "Change a column: nullable, type_, new_column_name and the rest of Alembic's alter_column options",
+  ],
+  ['create_index(table, columns, unique=False)', 'Create an index named ix_<table>_<columns>'],
+  ['drop_index(table, columns)', 'Drop the index create_index made for those columns'],
+  ['execute(sql)', 'Run raw SQL, for example to backfill data after adding a column'],
+]
+
+const updateMigrationExample = `"""Update table 'users'."""
+
+from sqlalchemy import Column, String
+
+from app.database.schema import Schema
+
+# Read by \`\`fastapi-foundry migration\`\` to list the tables that already exist.
+TABLE = "users"
+
+
+def upgrade(schema: Schema) -> None:
+    """Apply this migration."""
+    schema.add_column(TABLE, Column("email", String(255), nullable=True))
+    schema.create_index(TABLE, ["email"], unique=True)
+
+
+def downgrade(schema: Schema) -> None:
+    """Revert this migration."""
+    schema.drop_index(TABLE, ["email"])
+    schema.drop_column(TABLE, "email")
+`
 
 const link = 'font-medium text-brand-600 underline-offset-4 hover:underline dark:text-brand-400'
 
@@ -501,8 +541,9 @@ Created migration: app/database/20260922143022_create_users_table.py`}
             </div>
             <P>
               Migration files are written to <Code>app/database/</Code>, alongside the <Code>users</Code>{' '}
-              migration that every new project ships with. Each file records its table in a <Code>TABLE</Code>{' '}
-              constant, which is how the command lists existing tables. No database connection is needed.
+              migration that every new project ships with. A migration for a new table starts with an{' '}
+              <Code>id</Code> primary key and <Code>created_at</Code> / <Code>updated_at</Code> timestamps,
+              and its <Code>downgrade()</Code> drops the table again:
             </P>
             <div className="mt-4">
               <CodeBlock
@@ -512,9 +553,141 @@ Created migration: app/database/20260922143022_create_users_table.py`}
                 lineNumbers
               />
             </div>
+            <P>
+              A migration for an existing table has empty <Code>upgrade()</Code> and <Code>downgrade()</Code>{' '}
+              bodies with commented examples, ready for the change you want to make.
+            </P>
+            <P>
+              Each file records its table in a <Code>TABLE</Code> constant, which is how the command lists
+              existing tables, so no database connection is needed. If you edit a <Code>TABLE</Code> value by
+              hand, keep it a valid table name; files with invalid names are left out of the list.
+            </P>
             <Callout tone="warning">
-              The <Code>upgrade()</Code> and <Code>downgrade()</Code> bodies are yours to fill in;
-              fastapi-foundry does not run migrations yet.
+              Run the migration commands from the project root, the folder with <Code>pyproject.toml</Code>{' '}
+              and <Code>app/routes.py</Code>. From anywhere else, including a subfolder such as{' '}
+              <Code>app/</Code>, they stop with an error instead of creating files in the wrong place.
+            </Callout>
+          </section>
+
+          <section>
+            <H2 id="writing-migrations">Writing migrations</H2>
+            <P>
+              <Code>upgrade()</Code> and <Code>downgrade()</Code> receive a <Code>Schema</Code> from{' '}
+              <Code>app/database/schema.py</Code>. Describe columns with SQLAlchemy&apos;s <Code>Column</Code>
+              , the same way you would in a model, and make changes through these operations:
+            </P>
+            <Table
+              head={['Operation', 'What it does']}
+              rows={schemaOperations.map(([operation, description]) => [
+                <span className="font-mono text-xs whitespace-nowrap text-slate-900 dark:text-slate-100">
+                  {operation}
+                </span>,
+                description,
+              ])}
+            />
+            <P>
+              <Code>timestamps()</Code> returns new <Code>created_at</Code> and <Code>updated_at</Code>{' '}
+              columns that default to the current time; spread it into <Code>create_table</Code> with{' '}
+              <Code>*timestamps()</Code>. A migration that changes an existing table undoes its{' '}
+              <Code>upgrade()</Code> in reverse order:
+            </P>
+            <div className="mt-4">
+              <CodeBlock
+                code={updateMigrationExample}
+                language="python"
+                title="app/database/20260922150410_update_users_table.py"
+                lineNumbers
+              />
+            </div>
+            <Callout>
+              Don&apos;t import your models into a migration. A migration is a fixed record of one change, but
+              a model always describes the latest structure: a migration that builds <Code>users</Code> from
+              today&apos;s <Code>User</Code> model would create next month&apos;s columns too, and the later
+              migration that adds them would then fail on a fresh database.
+            </Callout>
+            <Callout tone="warning">
+              MySQL needs a column&apos;s current type for most <Code>alter_column</Code> changes, so pass{' '}
+              <Code>existing_type</Code> as well, for example{' '}
+              <Code>
+                schema.alter_column(TABLE, &quot;name&quot;, existing_type=String(100), nullable=False)
+              </Code>
+              .
+            </Callout>
+          </section>
+
+          <section>
+            <H2 id="running-migrations">Running migrations</H2>
+            <P>
+              <Code>fastapi-foundry migrate</Code> applies every migration that hasn&apos;t run yet, oldest
+              first, to the database configured in <Code>.env</Code>:
+            </P>
+            <div className="mt-4 space-y-3">
+              <CodeBlock code="uvx fastapi-foundry migrate" language="bash" prompt />
+              <CodeBlock
+                title="Output"
+                code={`Migrating:    20260922143022_create_users_table
+Migrated:     20260922143022_create_users_table
+Migrating:    20260922150410_update_users_table
+Migrated:     20260922150410_update_users_table`}
+              />
+            </div>
+            <P>
+              Applied migrations are recorded in a <Code>foundry_migrations</Code> table, which{' '}
+              <Code>migrate</Code> creates the first time it runs. Each <Code>migrate</Code> run is one{' '}
+              <em>batch</em>. <Code>fastapi-foundry migrate:rollback</Code> runs the <Code>downgrade()</Code>{' '}
+              of every migration in the last batch, newest first, and <Code>migrate:status</Code> lists every
+              migration with its state:
+            </P>
+            <div className="mt-4 space-y-3">
+              <CodeBlock code="uvx fastapi-foundry migrate:status" language="bash" prompt />
+              <CodeBlock
+                title="Output"
+                code={`Status   Batch  Migration
+Ran      1      20260922143022_create_users_table
+Ran      2      20260922150410_update_users_table
+Pending         20260922152233_create_posts_table`}
+              />
+            </div>
+            <H3>How it runs</H3>
+            <P>
+              Migrations need your project&apos;s dependencies (SQLAlchemy, Alembic and the database driver)
+              and its settings, so fastapi-foundry runs the project&apos;s own{' '}
+              <Code>app/database/migrator.py</Code> inside the project&apos;s environment with{' '}
+              <Code>uv run</Code>, loading <Code>.env</Code> when it exists. The SQL itself comes from{' '}
+              <a href="https://alembic.sqlalchemy.org/" target="_blank" rel="noreferrer" className={link}>
+                Alembic
+              </a>
+              , so each <Code>Schema</Code> operation produces the right statements for your database. You can
+              also run the migrator directly, for example from a deploy script inside the project&apos;s
+              virtual environment:
+            </P>
+            <div className="mt-4">
+              <CodeBlock
+                code={`python -m app.database.migrator migrate
+python -m app.database.migrator rollback
+python -m app.database.migrator status`}
+                language="bash"
+                prompt
+              />
+            </div>
+            <H3>When a migration fails</H3>
+            <P>
+              <Code>migrate</Code> stops at the first migration that fails and prints the error with the
+              migration&apos;s name. Migrations before it stay applied; the failed one and those after it stay
+              pending, so you can fix it and run <Code>migrate</Code> again.
+            </P>
+            <Callout tone="warning">
+              Each migration runs in its own transaction, but MySQL commits every <Code>CREATE</Code>,{' '}
+              <Code>ALTER</Code> and <Code>DROP</Code> immediately. If a MySQL migration fails partway, the
+              statements before the failure have already been applied, so check the table before running{' '}
+              <Code>migrate</Code> again.
+            </Callout>
+            <Callout>
+              Projects created with fastapi-foundry 0.6.0 or earlier don&apos;t have{' '}
+              <Code>app/database/schema.py</Code> and <Code>app/database/migrator.py</Code>. Create a new
+              project with <Code>fastapi-foundry init</Code>, copy both files across, add <Code>alembic</Code>{' '}
+              to your dependencies, and give your existing migrations&apos; <Code>upgrade()</Code> and{' '}
+              <Code>downgrade()</Code> a <Code>schema</Code> parameter.
             </Callout>
           </section>
 

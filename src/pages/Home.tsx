@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   SlidersHorizontal,
   Star,
+  Undo2,
   Zap,
 } from 'lucide-react'
 import { Link } from 'react-router'
@@ -70,6 +71,11 @@ const migrationSession: TerminalLine[] = [
     text: 'Created migration: app/database/20260922143512_create_posts_table.py',
     tone: 'success',
   },
+  { kind: 'command', text: 'fastapi-foundry migrate' },
+  { kind: 'output', text: 'Migrating:    20260922143022_create_users_table', tone: 'muted' },
+  { kind: 'output', text: 'Migrated:     20260922143022_create_users_table', tone: 'success' },
+  { kind: 'output', text: 'Migrating:    20260922143512_create_posts_table', tone: 'muted' },
+  { kind: 'output', text: 'Migrated:     20260922143512_create_posts_table', tone: 'success' },
 ]
 
 const featureIcons: Record<Feature['icon'], typeof Zap> = {
@@ -494,8 +500,8 @@ const Migrations = () => (
       <SectionHeading
         id="migrations-title"
         eyebrow="Migrations"
-        title="Interactive migration files"
-        description="Run fastapi-foundry migration from the project root. It asks whether you are creating a new table or changing an existing one, and lists the tables earlier migrations already cover."
+        title="Write, run and roll back migrations"
+        description="fastapi-foundry migration asks whether you are creating a new table or changing an existing one and writes the file. fastapi-foundry migrate applies everything pending to your database."
       />
       <div className="mt-14 grid items-start gap-6 lg:grid-cols-2 [&>*]:min-w-0">
         <Terminal lines={migrationSession} title="~/code/myproject — zsh" />
@@ -509,12 +515,12 @@ const Migrations = () => (
             title="app/database/20260922143512_create_posts_table.py"
             lineNumbers
           />
-          <p className="flex gap-2.5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-400/20 dark:bg-amber-400/5 dark:text-amber-200">
-            <CircleDashed className="mt-0.5 size-4 shrink-0" />
+          <p className="flex gap-2.5 rounded-xl border border-brand-200 bg-brand-50 p-4 text-sm text-brand-900 dark:border-brand-400/20 dark:bg-brand-400/5 dark:text-brand-100">
+            <Undo2 className="mt-0.5 size-4 shrink-0" />
             <span>
-              The <code className="font-mono">upgrade()</code> and{' '}
-              <code className="font-mono">downgrade()</code> bodies are yours to fill in. Running migrations
-              with Alembic is on the roadmap.
+              Each <code className="font-mono">migrate</code> run is one batch.{' '}
+              <code className="font-mono">fastapi-foundry migrate:rollback</code> reverts the last batch, and{' '}
+              <code className="font-mono">migrate:status</code> shows what has run.
             </span>
           </p>
         </div>

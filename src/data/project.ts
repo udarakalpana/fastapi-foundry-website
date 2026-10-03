@@ -96,9 +96,9 @@ export const features: Feature[] = [
     icon: 'repeat',
   },
   {
-    title: 'Migration files',
+    title: 'Migrations that run',
     description:
-      '`fastapi-foundry migration` adds timestamped migration files to `app/database/`, and you choose the table from a prompt.',
+      '`fastapi-foundry migration` writes a timestamped migration, `migrate` applies it with Alembic and `migrate:rollback` reverts the last batch.',
     icon: 'git',
   },
 ]
@@ -108,6 +108,7 @@ export const stack = [
   { name: 'Uvicorn', url: 'https://www.uvicorn.org/' },
   { name: 'SQLAlchemy', url: 'https://www.sqlalchemy.org/' },
   { name: 'PyMySQL', url: 'https://github.com/PyMySQL/PyMySQL' },
+  { name: 'Alembic', url: 'https://alembic.sqlalchemy.org/' },
   { name: 'uv', url: 'https://docs.astral.sh/uv/' },
   { name: 'Typer', url: 'https://typer.tiangolo.com/' },
 ]
@@ -218,6 +219,9 @@ export const commands = [
     description: 'Create a new project in the current directory',
   },
   { command: 'fastapi-foundry migration', description: 'Create a migration file in app/database/' },
+  { command: 'fastapi-foundry migrate', description: 'Apply pending migrations to the database' },
+  { command: 'fastapi-foundry migrate:rollback', description: 'Revert the last batch of migrations' },
+  { command: 'fastapi-foundry migrate:status', description: 'List migrations and whether each has run' },
 ]
 
 export type RoadmapItem = { title: string; description: string; done: boolean }
@@ -249,8 +253,19 @@ export const roadmap: RoadmapItem[] = [
     done: true,
   },
   {
-    title: 'Running migrations with Alembic',
-    description: 'Apply and roll back migrations against your database.',
+    title: 'Running migrations',
+    description: 'Apply and roll back migrations with `migrate` and `migrate:rollback`, powered by Alembic.',
+    done: true,
+  },
+  {
+    title: 'Models generated from migrations',
+    description:
+      'Replay your migrations to generate SQLAlchemy model columns that always match the database.',
+    done: false,
+  },
+  {
+    title: 'Schema drift check',
+    description: 'Fail CI when migrations, models and the database disagree.',
     done: false,
   },
   {
@@ -259,8 +274,8 @@ export const roadmap: RoadmapItem[] = [
     done: false,
   },
   {
-    title: 'Model & route generators',
-    description: 'Generate models and routes from the command line.',
+    title: 'Route generators',
+    description: 'Generate routes and controllers from the command line.',
     done: false,
   },
   {
