@@ -1,75 +1,56 @@
-# React + TypeScript + Vite
+# fastapi-foundry website
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The official website for [fastapi-foundry](https://github.com/udarakalpana/fastapi-foundry), an open-source CLI
+that scaffolds ready-to-run FastAPI projects.
 
-Currently, two official plugins are available:
+Built with React 19, TypeScript, Vite, Tailwind CSS v4 and React Router.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Pages
 
-## React Compiler
+| Route   | Contents                                                                                                                                                                                          |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`     | Landing page: hero with an animated terminal, install tabs, features, quick start, an interactive explorer of the generated project, architecture, database, migrations, roadmap and contributing |
+| `/docs` | Full documentation with a sticky table of contents and scroll-spy                                                                                                                                 |
+| `*`     | 404 page                                                                                                                                                                                          |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+The site supports light and dark themes (following the system setting until the visitor picks one), works
+down to phone widths, and respects `prefers-reduced-motion`. The navbar shows the latest version from PyPI
+and the GitHub star count, falling back to the bundled version when those APIs are unreachable.
 
-## Expanding the ESLint configuration
+## Development
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm install
+npm run dev       # start the dev server
+npm run build     # type-check and build to dist/
+npm run lint      # ESLint
+npm run format    # Prettier
+npm run preview   # serve the production build
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+## Project layout
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```text
+src/
+├── App.tsx                    # Router setup
+├── components/                # Navbar, Footer, CodeBlock, Terminal, FileExplorer, ...
+├── pages/                     # Home, Docs, NotFound
+├── data/
+│   ├── project.ts             # Site content: links, features, config vars, roadmap
+│   └── generatedProject.ts    # Real output of `fastapi-foundry init myproject`
+└── lib/
+    ├── highlight.ts           # Small syntax highlighter for Python, bash, TOML and .env
+    └── hooks.ts               # Theme, clipboard, in-view and repo stats hooks
 ```
+
+### Updating content for a new fastapi-foundry release
+
+- Edit `src/data/project.ts` for the version, features, configuration table and roadmap.
+- Regenerate `src/data/generatedProject.ts` when the project templates change, so the file explorer keeps
+  showing exactly what the CLI writes.
+
+## Deployment
+
+`npm run build` produces a static site in `dist/`. The site uses client-side routing, so configure your host to
+serve `index.html` for unknown paths (for example, a rewrite rule on Netlify or Vercel, or a copy of
+`index.html` as `404.html` on GitHub Pages).
