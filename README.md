@@ -7,11 +7,11 @@ Built with React 19, TypeScript, Vite, Tailwind CSS v4 and React Router.
 
 ## Pages
 
-| Route   | Contents                                                                                                                                                                                          |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/`     | Landing page: hero with an animated terminal, install tabs, features, quick start, an interactive explorer of the generated project, architecture, database, migrations, roadmap and contributing |
-| `/docs` | Full documentation with a sticky table of contents and scroll-spy                                                                                                                                 |
-| `*`     | 404 page                                                                                                                                                                                          |
+| Route   | Contents                                                                                                                                                                                                  |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`     | Landing page: hero with an animated terminal, install tabs, features, quick start, an interactive explorer of the generated project, architecture, database, migrations, models, roadmap and contributing |
+| `/docs` | Full documentation with a sticky table of contents and scroll-spy                                                                                                                                         |
+| `*`     | 404 page                                                                                                                                                                                                  |
 
 The site supports light and dark themes (following the system setting until the visitor picks one), works
 down to phone widths, and respects `prefers-reduced-motion`. The navbar shows the latest version from PyPI
@@ -37,7 +37,7 @@ src/
 ├── pages/                     # Home, Docs, NotFound
 ├── data/
 │   ├── project.ts             # Site content: links, features, config vars, roadmap
-│   └── generatedProject.ts    # Real output of `fastapi-foundry init myproject`
+│   └── generatedProject.ts    # Real output of `fastapi-foundry init myproject` and `model`
 └── lib/
     ├── highlight.ts           # Small syntax highlighter for Python, bash, TOML and .env
     └── hooks.ts               # Theme, clipboard, in-view and repo stats hooks
@@ -46,8 +46,8 @@ src/
 ### Updating content for a new fastapi-foundry release
 
 - Edit `src/data/project.ts` for the version, features, configuration table and roadmap.
-- Regenerate `src/data/generatedProject.ts` when the project templates change, so the file explorer keeps
-  showing exactly what the CLI writes.
+- Regenerate `src/data/generatedProject.ts` when the project or model templates change, so the file explorer
+  and the Models sections keep showing exactly what the CLI writes.
 
 ## Deployment
 

@@ -1,6 +1,7 @@
 import {
   ArrowRight,
   BookOpen,
+  Box,
   Check,
   CircleDashed,
   Database,
@@ -23,7 +24,7 @@ import { RichText } from '../components/InlineCode'
 import InstallTabs from '../components/InstallTabs'
 import SectionHeading from '../components/SectionHeading'
 import Terminal, { type TerminalLine } from '../components/Terminal'
-import { generatedFiles } from '../data/generatedProject'
+import { generatedFiles, generatedModelFiles } from '../data/generatedProject'
 import {
   contributeCommands,
   features,
@@ -76,6 +77,21 @@ const migrationSession: TerminalLine[] = [
   { kind: 'output', text: 'Migrated:     20260922143022_create_users_table', tone: 'success' },
   { kind: 'output', text: 'Migrating:    20260922143512_create_posts_table', tone: 'muted' },
   { kind: 'output', text: 'Migrated:     20260922143512_create_posts_table', tone: 'success' },
+]
+
+const modelSession: TerminalLine[] = [
+  { kind: 'command', text: 'fastapi-foundry model' },
+  { kind: 'output', text: '' },
+  { kind: 'output', text: 'Is this model for an existing database table?' },
+  { kind: 'output', text: '  1) Yes', tone: 'muted' },
+  { kind: 'output', text: '  2) No', tone: 'muted' },
+  { kind: 'output', text: 'Select [1-2]: 1', tone: 'accent' },
+  { kind: 'output', text: '' },
+  { kind: 'output', text: 'Select the table this model represents' },
+  { kind: 'output', text: '  1) users', tone: 'muted' },
+  { kind: 'output', text: 'Select [1-1]: 1', tone: 'accent' },
+  { kind: 'output', text: 'Model name (PascalCase, e.g. UserModel) [UserModel]:', tone: 'accent' },
+  { kind: 'output', text: "Created model: app/model/user_model.py (table 'users')", tone: 'success' },
 ]
 
 const featureIcons: Record<Feature['icon'], typeof Zap> = {
@@ -529,6 +545,38 @@ const Migrations = () => (
   </section>
 )
 
+const Models = () => (
+  <section id="models" className="py-24 sm:py-28" aria-labelledby="models-title">
+    <div className={container}>
+      <SectionHeading
+        id="models-title"
+        eyebrow="Models"
+        title="A model for every table"
+        description="fastapi-foundry model lists the tables your migrations create, or derives the table from a new model's name, and writes a typed SQLAlchemy model to app/model/."
+      />
+      <div className="mt-14 grid items-start gap-6 lg:grid-cols-2 [&>*]:min-w-0">
+        <Terminal lines={modelSession} title="~/code/myproject — zsh" />
+        <div className="space-y-4">
+          <CodeBlock
+            code={generatedModelFiles['app/model/user_model.py']}
+            language="python"
+            title="app/model/user_model.py"
+            lineNumbers
+          />
+          <p className="flex gap-2.5 rounded-xl border border-brand-200 bg-brand-50 p-4 text-sm text-brand-900 dark:border-brand-400/20 dark:bg-brand-400/5 dark:text-brand-100">
+            <Box className="mt-0.5 size-4 shrink-0" />
+            <span>
+              Answer <strong>No</strong> to name a new model instead:{' '}
+              <code className="font-mono">ProductModel</code> maps the{' '}
+              <code className="font-mono">products</code> table. Existing files are never overwritten.
+            </span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+)
+
 const Roadmap = () => {
   const shipped = roadmap.filter((item) => item.done)
   const planned = roadmap.filter((item) => !item.done)
@@ -702,6 +750,7 @@ const Home = () => (
     <Architecture />
     <DatabaseSection />
     <Migrations />
+    <Models />
     <Roadmap />
     <Community />
     <FinalCta />

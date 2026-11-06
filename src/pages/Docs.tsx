@@ -3,7 +3,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import CodeBlock from '../components/CodeBlock'
 import FileExplorer from '../components/FileExplorer'
 import { Code } from '../components/InlineCode'
-import { generatedFiles } from '../data/generatedProject'
+import { generatedFiles, generatedModelFiles } from '../data/generatedProject'
 import { commands, configVars, contributeCommands, localUrls, project, roadmap } from '../data/project'
 
 const sections = [
@@ -19,6 +19,7 @@ const sections = [
   { id: 'migrations', label: 'Migrations' },
   { id: 'writing-migrations', label: 'Writing migrations' },
   { id: 'running-migrations', label: 'Running migrations' },
+  { id: 'models', label: 'Models' },
   { id: 'roadmap', label: 'Roadmap' },
   { id: 'contributing', label: 'Contributing' },
   { id: 'license', label: 'License' },
@@ -51,7 +52,10 @@ const useActiveSection = (ids: string[]) => {
 const sectionIds = sections.map((section) => section.id)
 
 const H2 = ({ id, children }: { id: string; children: ReactNode }) => (
-  <h2 id={id} className="group scroll-mt-10 lg:scroll-mt-0 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+  <h2
+    id={id}
+    className="group scroll-mt-10 lg:scroll-mt-0 text-2xl font-bold tracking-tight text-slate-900 dark:text-white"
+  >
     <a href={`#${id}`} className="relative">
       <span
         aria-hidden="true"
@@ -223,6 +227,30 @@ def downgrade(schema: Schema) -> None:
     schema.drop_column(TABLE, "email")
 `
 
+// How `fastapi-foundry model` turns a model name into a table name, and back.
+const modelNameExamples = [
+  ['ProductModel', 'app/model/product_model.py', 'products'],
+  ['CategoryModel', 'app/model/category_model.py', 'categories'],
+  ['OrderItemModel', 'app/model/order_item_model.py', 'order_items'],
+  ['AddressModel', 'app/model/address_model.py', 'addresses'],
+]
+
+const modelInRouteExample = `from typing import Annotated
+
+from fastapi import Depends
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from app.config.sqlalchemy_connection import get_db
+from app.model.user_model import UserModel
+
+
+@app.get("/users")
+def list_users(db: Annotated[Session, Depends(get_db)]) -> list[dict]:
+    users = db.scalars(select(UserModel)).all()
+    return [{"id": user.id, "created_at": user.created_at} for user in users]
+`
+
 const link = 'font-medium text-brand-600 underline-offset-4 hover:underline dark:text-brand-400'
 
 const Docs = () => {
@@ -384,6 +412,13 @@ const Docs = () => {
             <P>
               Routes stay thin and hand the work to a controller. Add a controller class per resource in{' '}
               <Code>app/controller/</Code>, and give it a route in <Code>app/routes.py</Code>.
+            </P>
+            <P>
+              An <Code>app/model/</Code> folder for SQLAlchemy models appears the first time you run{' '}
+              <a href="#models" className={link}>
+                <Code>fastapi-foundry model</Code>
+              </a>
+              .
             </P>
           </section>
 
@@ -602,7 +637,7 @@ Created migration: app/database/20260922143022_create_users_table.py`}
             <Callout>
               Don&apos;t import your models into a migration. A migration is a fixed record of one change, but
               a model always describes the latest structure: a migration that builds <Code>users</Code> from
-              today&apos;s <Code>User</Code> model would create next month&apos;s columns too, and the later
+              today&apos;s <Code>UserModel</Code> would create next month&apos;s columns too, and the later
               migration that adds them would then fail on a fresh database.
             </Callout>
             <Callout tone="warning">
@@ -688,6 +723,121 @@ python -m app.database.migrator status`}
               project with <Code>fastapi-foundry init</Code>, copy both files across, add <Code>alembic</Code>{' '}
               to your dependencies, and give your existing migrations&apos; <Code>upgrade()</Code> and{' '}
               <Code>downgrade()</Code> a <Code>schema</Code> parameter.
+            </Callout>
+          </section>
+
+          <section>
+            <H2 id="models">Models</H2>
+            <P>
+              Run <Code>fastapi-foundry model</Code> from the project root to add a{' '}
+              <a
+                href="https://docs.sqlalchemy.org/en/20/orm/"
+                target="_blank"
+                rel="noreferrer"
+                className={link}
+              >
+                SQLAlchemy
+              </a>{' '}
+              model class. It first asks whether the model is for an existing database table.
+            </P>
+            <div className="mt-4">
+              <CodeBlock code="uvx fastapi-foundry model" language="bash" prompt />
+            </div>
+            <H3>For an existing table</H3>
+            <P>
+              Answer <strong className="text-slate-900 dark:text-white">Yes</strong> and the command lists the
+              tables your migrations already create, read from their <Code>TABLE</Code> constants, so no
+              database connection is needed. Pick one, then press Enter to accept the suggested model name or
+              type your own:
+            </P>
+            <div className="mt-4">
+              <CodeBlock
+                title="Output"
+                code={`Is this model for an existing database table?
+  1) Yes
+  2) No
+Select [1-2]: 1
+
+Select the table this model represents
+  1) users
+Select [1-1]: 1
+Model name (PascalCase, e.g. UserModel) [UserModel]:
+Created model: app/model/user_model.py (table 'users')`}
+              />
+            </div>
+            <H3>For a new model</H3>
+            <P>
+              Answer <strong className="text-slate-900 dark:text-white">No</strong> and type a model name. The
+              table name comes from the model name: a trailing <Code>Model</Code> is dropped and the rest is
+              converted to snake_case and made plural. If the table doesn&apos;t exist yet, create it with{' '}
+              <Code>fastapi-foundry migration</Code>.
+            </P>
+            <div className="mt-4">
+              <CodeBlock
+                title="Output"
+                code={`Is this model for an existing database table?
+  1) Yes
+  2) No
+Select [1-2]: 2
+Model name (PascalCase, e.g. ProductModel): ProductModel
+Created model: app/model/product_model.py (table 'products')`}
+              />
+            </div>
+            <Table
+              head={['Model name', 'File', 'Table']}
+              rows={modelNameExamples.map(([name, file, table]) => [
+                <Code>{name}</Code>,
+                <span className="font-mono text-xs whitespace-nowrap">{file}</span>,
+                <Code>{table}</Code>,
+              ])}
+            />
+            <P>
+              Model names are PascalCase: letters and digits, starting with a capital letter. Names such as{' '}
+              <Code>product</Code>, <Code>product_model</Code> or <Code>Product Model</Code> are rejected and
+              the question is asked again. <Code>Base</Code>, a bare <Code>Model</Code> and Python keywords
+              are reserved.
+            </P>
+            <H3>The generated model</H3>
+            <P>
+              Each model is written to its own snake_case module in <Code>app/model/</Code> and maps the
+              columns every create-table migration starts with: <Code>id</Code>, <Code>created_at</Code> and{' '}
+              <Code>updated_at</Code>. It uses SQLAlchemy 2.0&apos;s typed <Code>Mapped</Code> /{' '}
+              <Code>mapped_column</Code> declarations:
+            </P>
+            <div className="mt-4 space-y-3">
+              <CodeBlock
+                code={generatedModelFiles['app/model/user_model.py']}
+                language="python"
+                title="app/model/user_model.py"
+                lineNumbers
+              />
+              <CodeBlock
+                code={generatedModelFiles['app/model/base.py']}
+                language="python"
+                title="app/model/base.py"
+                lineNumbers
+              />
+            </div>
+            <P>
+              Every model inherits from <Code>Base</Code> in <Code>app/model/base.py</Code>, which the command
+              creates the first time it runs, so it also works in projects created before models existed.
+            </P>
+            <Callout>
+              Migrations own the table&apos;s structure. When a migration adds a column, add the matching
+              attribute to the model, for example <Code>name: Mapped[str] = mapped_column(String(255))</Code>,
+              so the model keeps describing the table as it is.
+            </Callout>
+            <H3>Using a model</H3>
+            <P>
+              Query a model with the session from <Code>get_db</Code>:
+            </P>
+            <div className="mt-4">
+              <CodeBlock code={modelInRouteExample} language="python" title="Using a model in a route" />
+            </div>
+            <Callout tone="warning">
+              <Code>fastapi-foundry model</Code> never overwrites your files. If the model&apos;s file already
+              exists it stops with an error, and a <Code>base.py</Code> you have customised is left as it is.
+              Like the migration commands, it only runs from the project root.
             </Callout>
           </section>
 

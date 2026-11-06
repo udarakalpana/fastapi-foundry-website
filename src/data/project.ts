@@ -96,9 +96,9 @@ export const features: Feature[] = [
     icon: 'repeat',
   },
   {
-    title: 'Migrations that run',
+    title: 'Migrations and models',
     description:
-      '`fastapi-foundry migration` writes a timestamped migration, `migrate` applies it with Alembic and `migrate:rollback` reverts the last batch.',
+      '`fastapi-foundry migration` writes a timestamped migration, `migrate` applies it with Alembic, `migrate:rollback` reverts the last batch and `model` writes the matching SQLAlchemy model.',
     icon: 'git',
   },
 ]
@@ -222,6 +222,7 @@ export const commands = [
   { command: 'fastapi-foundry migrate', description: 'Apply pending migrations to the database' },
   { command: 'fastapi-foundry migrate:rollback', description: 'Revert the last batch of migrations' },
   { command: 'fastapi-foundry migrate:status', description: 'List migrations and whether each has run' },
+  { command: 'fastapi-foundry model', description: 'Create a SQLAlchemy model class in app/model/' },
 ]
 
 export type RoadmapItem = { title: string; description: string; done: boolean }
@@ -255,6 +256,11 @@ export const roadmap: RoadmapItem[] = [
   {
     title: 'Running migrations',
     description: 'Apply and roll back migrations with `migrate` and `migrate:rollback`, powered by Alembic.',
+    done: true,
+  },
+  {
+    title: 'Model generator',
+    description: 'Interactive `model` command that writes a SQLAlchemy model class for a table.',
     done: true,
   },
   {
