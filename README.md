@@ -7,11 +7,12 @@ Built with React 19, TypeScript, Vite, Tailwind CSS v4 and React Router.
 
 ## Pages
 
-| Route   | Contents                                                                                                                                                                                                  |
-| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/`     | Landing page: hero with an animated terminal, install tabs, features, quick start, an interactive explorer of the generated project, architecture, database, migrations, models, roadmap and contributing |
-| `/docs` | Full documentation with a sticky table of contents and scroll-spy                                                                                                                                         |
-| `*`     | 404 page                                                                                                                                                                                                  |
+| Route         | Contents                                                                                                                                                                                                  |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`           | Landing page: hero with an animated terminal, install tabs, features, quick start, an interactive explorer of the generated project, architecture, database, migrations, models, roadmap and contributing |
+| `/docs`       | Redirects to the first topic; old single-page links such as `/docs#models` redirect to `/docs/models`                                                                                                     |
+| `/docs/:slug` | One page per documentation topic, with a grouped sidebar that lists each topic's subtopics, scroll-spy for the current page, and previous/next links                                                      |
+| `*`           | 404 page                                                                                                                                                                                                  |
 
 The site supports light and dark themes (following the system setting until the visitor picks one), works
 down to phone widths, and respects `prefers-reduced-motion`. The navbar shows the latest version from PyPI
@@ -35,9 +36,10 @@ src/
 ├── App.tsx                    # Router setup
 ├── components/                # Navbar, Footer, CodeBlock, Terminal, FileExplorer, ...
 ├── pages/                     # Home, Docs, NotFound
+│   └── docs/                  # Docs topics: topic list (topics.ts), page content and shared primitives
 ├── data/
 │   ├── project.ts             # Site content: links, features, config vars, roadmap
-│   └── generatedProject.ts    # Real output of `fastapi-foundry init myproject` and `model`
+│   └── generatedProject.ts    # Real output of `fastapi-foundry init myproject`, `model` and `controller`
 └── lib/
     ├── highlight.ts           # Small syntax highlighter for Python, bash, TOML and .env
     └── hooks.ts               # Theme, clipboard, in-view and repo stats hooks
@@ -46,8 +48,8 @@ src/
 ### Updating content for a new fastapi-foundry release
 
 - Edit `src/data/project.ts` for the version, features, configuration table and roadmap.
-- Regenerate `src/data/generatedProject.ts` when the project or model templates change, so the file explorer
-  and the Models sections keep showing exactly what the CLI writes.
+- Regenerate `src/data/generatedProject.ts` when the project, model or controller templates change, so the
+  file explorer and the Models and Controllers sections keep showing exactly what the CLI writes.
 
 ## Deployment
 
