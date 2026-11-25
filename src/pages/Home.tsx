@@ -400,9 +400,15 @@ const Architecture = () => (
         </h2>
         <p className="mt-4 text-lg leading-relaxed text-slate-400">
           Routes in <code className="font-mono text-slate-200">app/routes.py</code> stay small and hand the
-          work to a controller class. Add a controller per resource in{' '}
-          <code className="font-mono text-slate-200">app/controller/</code> and give it a route. The structure
-          stays the same as your API grows.
+          work to a controller class.{' '}
+          <Link
+            to="/docs/controllers"
+            className="font-mono text-slate-200 underline-offset-4 hover:underline"
+          >
+            fastapi-foundry controller
+          </Link>{' '}
+          writes one per resource to <code className="font-mono text-slate-200">app/controller/</code> and
+          prints the route to add. The structure stays the same as your API grows.
         </p>
         <dl className="mt-10 grid grid-cols-2 gap-6">
           {[
@@ -495,7 +501,7 @@ DB_PASSWORD=<password>`}
           ))}
         </ul>
         <Link
-          to="/docs#configuration"
+          to="/docs/configuration"
           className="mt-8 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:gap-2.5 dark:text-brand-400"
           style={{ transition: 'gap 150ms' }}
         >

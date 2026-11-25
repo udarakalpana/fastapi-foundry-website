@@ -69,7 +69,7 @@ export const features: Feature[] = [
   {
     title: 'Structured by default',
     description:
-      'Thin routes in `app/routes.py` delegate to controller classes in `app/controller/`, so the code stays organised as it grows.',
+      'Thin routes in `app/routes.py` delegate to controller classes in `app/controller/`, and `fastapi-foundry controller` writes a new one for each resource.',
     icon: 'layers',
   },
   {
@@ -223,6 +223,7 @@ export const commands = [
   { command: 'fastapi-foundry migrate:rollback', description: 'Revert the last batch of migrations' },
   { command: 'fastapi-foundry migrate:status', description: 'List migrations and whether each has run' },
   { command: 'fastapi-foundry model', description: 'Create a SQLAlchemy model class in app/model/' },
+  { command: 'fastapi-foundry controller', description: 'Create a controller class in app/controller/' },
 ]
 
 export type RoadmapItem = { title: string; description: string; done: boolean }
@@ -264,6 +265,12 @@ export const roadmap: RoadmapItem[] = [
     done: true,
   },
   {
+    title: 'Controller generator',
+    description:
+      'Interactive `controller` command that writes a controller class and shows the route to add.',
+    done: true,
+  },
+  {
     title: 'Models generated from migrations',
     description:
       'Replay your migrations to generate SQLAlchemy model columns that always match the database.',
@@ -281,7 +288,7 @@ export const roadmap: RoadmapItem[] = [
   },
   {
     title: 'Route generators',
-    description: 'Generate routes and controllers from the command line.',
+    description: 'Add the routes for a new controller to app/routes.py from the command line.',
     done: false,
   },
   {

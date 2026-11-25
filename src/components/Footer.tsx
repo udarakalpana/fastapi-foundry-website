@@ -17,11 +17,12 @@ const groups = [
   {
     title: 'Documentation',
     links: [
-      { label: 'Installation', to: '/docs#installation' },
-      { label: 'Configuration', to: '/docs#configuration' },
-      { label: 'Database', to: '/docs#database' },
-      { label: 'Migrations', to: '/docs#migrations' },
-      { label: 'Models', to: '/docs#models' },
+      { label: 'Installation', to: '/docs/installation' },
+      { label: 'Configuration', to: '/docs/configuration' },
+      { label: 'Database', to: '/docs/database' },
+      { label: 'Migrations', to: '/docs/migrations' },
+      { label: 'Models', to: '/docs/models' },
+      { label: 'Controllers', to: '/docs/controllers' },
     ],
   },
   {
